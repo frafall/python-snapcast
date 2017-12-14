@@ -52,6 +52,17 @@ class Snapgroup(object):
         """Get mute status."""
         return self._group.get('muted')
 
+    def delete(self):
+        """Rename group."""
+        yield from self._server.group_delete(self.identifier)
+        _LOGGER.info('delete group %s', self.identifier)
+
+    def rename(self, newname):
+        """Rename group."""
+        self._group['name'] = newname
+        yield from self._server.group_rename(self.identifier, newname)
+        _LOGGER.info('rename group %s to %s', self.identifier, self.name)
+
     def set_muted(self, status):
         """Set group mute status."""
         self._group['muted'] = status

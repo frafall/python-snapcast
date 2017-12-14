@@ -16,6 +16,7 @@ SERVER_GETSTATUS = 'Server.GetStatus'
 SERVER_GETRPCVERSION = 'Server.GetRPCVersion'
 SERVER_DELETECLIENT = 'Server.DeleteClient'
 SERVER_ONUPDATE = 'Server.OnUpdate'
+SERVER_ADDGROUP = 'Server.AddGroup'
 
 CLIENT_GETSTATUS = 'Client.GetStatus'
 CLIENT_SETNAME = 'Client.SetName'
@@ -32,6 +33,8 @@ GROUP_GETSTATUS = 'Group.GetStatus'
 GROUP_SETMUTE = 'Group.SetMute'
 GROUP_SETSTREAM = 'Group.SetStream'
 GROUP_SETCLIENTS = 'Group.SetClients'
+GROUP_RENAME = 'Group.Rename'
+GROUP_DELETE = 'Group.Delete'
 GROUP_ONMUTE = 'Group.OnMute'
 GROUP_ONSTREAMCHANGED = 'Group.OnStreamChanged'
 
@@ -48,7 +51,7 @@ _METHODS = [SERVER_GETSTATUS, SERVER_GETRPCVERSION, SERVER_DELETECLIENT,
             SERVER_DELETECLIENT, CLIENT_GETSTATUS, CLIENT_SETNAME,
             CLIENT_SETLATENCY, CLIENT_SETSTREAM, CLIENT_SETVOLUME,
             GROUP_GETSTATUS, GROUP_SETMUTE, GROUP_SETSTREAM, GROUP_SETCLIENTS,
-            STREAM_SETMETA]
+            GROUP_RENAME, GROUP_DELETE, SERVER_ADDGROUP, STREAM_SETMETA]
 
 
 # pylint: disable=too-many-public-methods
@@ -152,6 +155,14 @@ class Snapserver(object):
         """Get client status."""
         return self._request(CLIENT_GETSTATUS, identifier, 'client')
 
+    @asyncio.coroutine
+    def group_add(self, name):
+        """Rename group."""
+        _LOGGER.debug("group_add('%s')", name)
+        params = {'name': name}
+        result = yield from self._transact(SERVER_ADDGROUP, params)
+        return result
+
     def group_status(self, identifier):
         """Get group status."""
         return self._request(GROUP_GETSTATUS, identifier, 'group')
@@ -168,9 +179,18 @@ class Snapserver(object):
         """Set group clients."""
         return self._request(GROUP_SETCLIENTS, identifier, 'clients', clients)
 
+    def group_delete(self, identifier):
+        """Delete group."""
+        _LOGGER.debug("group.delete('%s')", identifier)
+        return self._request(GROUP_DELETE, identifier)
+
+    def group_rename(self, identifier, newname):
+        """Rename group."""
+        _LOGGER.debug("group.rename('%s', '%s')", identifier, newname)
+        return self._request(GROUP_RENAME, identifier, 'name', newname)
+
     def stream_setmeta(self, identifier, tags):
         """Set streams metadata."""
-        _LOGGER.debug("stream_setmeta stream '%s' => %s", identifier, tags)
         return self._request(STREAM_SETMETA, identifier, 'meta', tags)
 
     def group(self, group_identifier):

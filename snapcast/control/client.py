@@ -38,6 +38,11 @@ class Snapclient(object):
         return self._client.get('host').get('name')
 
     @property
+    def hostname(self):
+        """Hostname."""
+        return self._client.get('host').get('name')
+
+    @property
     def version(self):
         """Version."""
         return self._client.get('snapclient').get('version')
